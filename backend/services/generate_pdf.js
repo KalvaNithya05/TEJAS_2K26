@@ -31,10 +31,10 @@ const writeStream = fs.createWriteStream(outputPath);
 doc.pipe(writeStream);
 
 // Helper for section headers
-const drawSectionHeader = (title) => {
-    doc.moveDown(1.5);
-    doc.fontSize(16).fillColor('#2E7D32').text(title, { underline: true });
-    doc.moveDown(0.5);
+const drawSectionHeader = (title, color = '#1B5E20') => {
+    doc.moveDown(0.8);
+    doc.fontSize(16).fillColor(color).text(title, { underline: true });
+    doc.moveDown(0.4);
 };
 
 // 1. Title & Header
@@ -56,68 +56,71 @@ if (data.used_params.moisture) doc.text(`Soil Moisture: ${data.used_params.moist
 if (data.used_params.soil_type) doc.text(`Soil Type: ${data.used_params.soil_type}`);
 doc.moveDown(1);
 
-// 3. Recommended Crops
-drawSectionHeader('Recommended Crops');
+// 3. Recommendations
+if (data.recommendations && data.recommendations.length > 0) {
+    data.recommendations.forEach((rec, index) => {
+        const isFirst = index === 0;
+        const crop = rec.crop;
+        const fert = rec.fertilizer;
+        const yld = rec.yield;
+        const cropName = crop.translated_crop || crop.crop;
+        const fertName = fert.translated_name || fert.name;
 
-if (data.crops && data.crops.length > 0) {
-    data.crops.forEach((crop, index) => {
-        const isBest = index === 0;
-        const color = isBest ? '#2E7D32' : '#000000';
-        let cropName = crop.translated_crop || crop.crop;
+        // New Page for each recommendation if not first
+        // Differentiate colors between top recommendation and others
+        const accentColor = isFirst ? '#10B981' : '#6366F1'; // Emerald vs Indigo
 
-        doc.fontSize(14).fillColor(color).text(
-            `${index + 1}. ${cropName.toUpperCase()}`,
-            { continued: true }
-        );
-        doc.fontSize(11).fillColor('#666666').text(
-            ` - ${(crop.confidence * 100).toFixed(1)}% confidence`,
-            { continued: false }
-        );
+        doc.fontSize(14).fillColor(accentColor).text(`Recommendation #${index + 1}: ${cropName.toUpperCase()}`, { underline: true });
+        doc.moveDown(0.2);
 
-        if (isBest) {
-            doc.fontSize(10).fillColor('#FF9800').text('   ★ Top Recommendation', { indent: 20 });
+        // Yield Info
+        doc.fontSize(11).fillColor('#000000').text(`Estimated Yield: ${yld.predicted_yield} ${yld.unit} (${yld.season} season)`);
+        doc.moveDown(0.3);
+
+        // Fertilizer Section - Using Accent Colors
+        doc.fontSize(12).fillColor(accentColor).text('Fertilizer Recommendation: ' + fertName);
+        doc.moveDown(0.2);
+
+        if (fert.reasoning && fert.reasoning.length > 0) {
+            doc.fontSize(10).fillColor('#1F2937').text('Reasoning:');
+            fert.reasoning.forEach(r => {
+                doc.fontSize(9).fillColor('#4B5563').text(` • ${r}`, { indent: 15 });
+            });
+            doc.moveDown(0.1);
         }
+
+        if (fert.application_tips && fert.application_tips.length > 0) {
+            doc.fontSize(10).fillColor(accentColor).text('Application Tips:');
+            fert.application_tips.forEach(tip => {
+                doc.fontSize(9).fillColor('#374151').text(` * ${tip}`, { indent: 15 });
+            });
+            doc.moveDown(0.1);
+        }
+
+        // Crop reasoning
+        if (crop.reasoning && crop.reasoning.length > 0) {
+            doc.fontSize(10).fillColor('#1F2937').text(`Why ${cropName}?`);
+            crop.reasoning.forEach(r => {
+                doc.fontSize(9).fillColor('#4B5563').text(` - ${r}`, { indent: 15 });
+            });
+        }
+
+        doc.moveDown(0.5);
+        // Horizontal Separator
+        doc.strokeColor('#E5E7EB').lineWidth(0.5).moveTo(50, doc.y).lineTo(550, doc.y).stroke();
         doc.moveDown(0.5);
     });
 } else {
-    doc.fontSize(11).fillColor('#666666').text('No crop recommendations available.');
+    drawSectionHeader('Recommendations');
+    doc.fontSize(11).fillColor('#6B7280').text('No recommendations available in the provided data.');
 }
 
-// 4. Yield Prediction (NEW)
-if (data.yield_prediction) {
-    drawSectionHeader('Estimated Crop Yield');
-    const yp = data.yield_prediction;
-    doc.fontSize(14).fillColor('#000000').text(`Projected Yield: ${yp.predicted_yield} tons/hectare`, { indent: 20 });
-    doc.fontSize(10).fillColor('#666666').text(`Based on optimal conditions for this crop in your region.`, { indent: 20 });
-}
-
-// 5. Fertilizer Recommendation
-drawSectionHeader('Fertilizer Recommendation');
-
-if (data.fertilizer_recommendation) {
-    const fert = data.fertilizer_recommendation;
-    let fertName = fert.translated_fertilizer || fert.fertilizer;
-
-    doc.fontSize(14).fillColor('#2E7D32').text('Recommended Fertilizer:', { continued: false });
-    doc.fontSize(18).fillColor('#1B5E20').text(fertName, { indent: 20 });
-    doc.moveDown(0.3);
-
-    doc.fontSize(11).fillColor('#666666').text(`Confidence: ${(fert.confidence * 100).toFixed(1)}%`, { indent: 20 });
-    doc.moveDown(0.5);
-
-    if (fert.reasoning && fert.reasoning.length > 0) {
-        doc.fontSize(12).fillColor('#000000').text('Why this fertilizer?');
-        doc.fontSize(10).fillColor('#555555');
-        fert.reasoning.forEach((reason) => {
-            doc.text(`• ${reason}`, { indent: 20 });
-            doc.moveDown(0.2);
-        });
-    }
+// Ensure there's a small break before guidelines if on same page, or move to next
+if (doc.y > 550) {
+    doc.addPage();
 } else {
-    doc.fontSize(11).fillColor('#666666').text('No fertilizer recommendation available.');
+    doc.moveDown(1);
 }
-
-doc.addPage();
 
 // 6. Application Guidelines (RESTORED)
 drawSectionHeader('Application Guidelines');

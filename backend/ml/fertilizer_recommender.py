@@ -64,7 +64,7 @@ class FertilizerRecommender:
         """
         if not self.model or not self.scaler:
             # Fallback to rule-based if model not loaded
-            return self._rule_based_fallback(nitrogen, phosphorous, potassium, lang)
+            return self._rule_based_fallback(nitrogen, phosphorous, potassium, crop_type, lang)
         
         try:
             # Prepare features in correct order: Temparature, Humidity, Moisture, Soil Type, Crop Type, Nitrogen, Potassium, Phosphorous
@@ -81,16 +81,26 @@ class FertilizerRecommender:
             # Map crop prediction to fertilizer dataset crop names
             crop_mapping = {
                 'rice': 'Paddy',
+                'paddy': 'Paddy',
                 'maize': 'Maize',
                 'wheat': 'Wheat',
                 'cotton': 'Cotton',
                 'sugarcane': 'Sugarcane',
                 'barley': 'Barley',
                 'millet': 'Millets',
+                'millets': 'Millets',
                 'pulses': 'Pulses',
                 'tobacco': 'Tobacco',
                 'groundnut': 'Ground Nuts',
-                'oilseeds': 'Oil seeds'
+                'oilseeds': 'Oil seeds',
+                'chickpea': 'Pulses',
+                'kidneybeans': 'Pulses',
+                'pigeonpeas': 'Pulses',
+                'mothbeans': 'Pulses',
+                'mungbean': 'Pulses',
+                'blackgram': 'Pulses',
+                'lentil': 'Pulses',
+                'jute': 'Cotton' # Jute has similar fiber-crop requirements to Cotton
             }
             
             # Try to map the crop
@@ -125,28 +135,32 @@ class FertilizerRecommender:
             fertilizer_name = self.fertilizer_encoder.inverse_transform([prediction])[0]
             confidence = probabilities[prediction]
             
-            # Generate reasoning
+            # Generate reasoning and tips
             reasoning = self._generate_reasoning(
                 fertilizer_name, crop_type, nitrogen, phosphorous, potassium,
                 temperature, humidity, moisture, soil_type
             )
             
+            tips = self._generate_application_tips(fertilizer_name, crop_type)
+            
             # Translate
             from backend.utils.translator import translate_text
             
             trans_fertilizer = translate_text(fertilizer_name, lang)
-            trans_reasoning = [translate_text(r, lang) for r in reasoning] # Need robust translation for sentences
+            trans_reasoning = [translate_text(r, lang) for r in reasoning]
+            trans_tips = [translate_text(t, lang) for t in tips]
             
             return {
                 'fertilizer': fertilizer_name,
                 'translated_fertilizer': trans_fertilizer,
                 'confidence': round(float(confidence), 2),
-                'reasoning': trans_reasoning
+                'reasoning': trans_reasoning,
+                'application_tips': trans_tips
             }
             
         except Exception as e:
             print(f"Fertilizer prediction error: {e}")
-            return self._rule_based_fallback(nitrogen, phosphorous, potassium, lang)
+            return self._rule_based_fallback(nitrogen, phosphorous, potassium, crop_type, lang)
     
     def _generate_reasoning(self, fertilizer, crop, n, p, k, temp, humidity, moisture, soil_type):
         """
@@ -203,31 +217,73 @@ class FertilizerRecommender:
         
         return reasoning
     
-    def _rule_based_fallback(self, n, p, k):
+    def _generate_application_tips(self, fertilizer, crop):
+        """Generate specific application tips based on fertilizer and crop."""
+        tips = []
+        name = fertilizer.lower()
+        
+        if 'urea' in name:
+            tips.append("Apply urea when soil is moist, preferably just before irrigation.")
+            tips.append("Incorporate into soil within 24 hours to minimize nitrogen loss to atmosphere.")
+        elif 'dap' in name:
+            tips.append("Apply DAP at the time of sowing for better root development.")
+            tips.append("Avoid contact between DAP and seeds; keep a 2-3 inch distance.")
+        elif 'mop' in name:
+            tips.append("MOP (Potash) should be applied in split doses for better efficacy.")
+            tips.append("Effective for improving fruit quality and stress tolerance.")
+        elif 'npk' in name:
+            tips.append("NPK fertilizers work best when applied in the root zone.")
+            tips.append("Standard application: half during sowing, remaining after 30-40 days.")
+            
+        # General crop tips
+        if crop and crop.lower() in ['rice', 'paddy']:
+            tips.append("For Paddy, apply fertilizers in standing water (shallow depth).")
+        
+        # Default tips if none generated
+        if not tips:
+            tips.append("Apply during early morning or late evening.")
+            tips.append("Ensure uniform distribution across the field.")
+            
+        return tips
+
+    def _rule_based_fallback(self, n, p, k, crop_type=None, lang='en'):
         """
         Fallback to simple rule-based recommendation if ML model fails.
         """
         recommendations = []
         fertilizer = "Balanced NPK"
         
-        if n < 50:
-            recommendations.append(f"Low Nitrogen ({n} mg/kg). Consider Urea or Ammonium Sulfate")
+        # Priority 1: Heavy deficiencies
+        if n < 30:
             fertilizer = "Urea"
+        elif p < 20:
+            fertilizer = "DAP"
+        elif k < 20:
+            fertilizer = "MOP"
         
-        if p < 20:
-            recommendations.append(f"Low Phosphorus ({p} mg/kg). Consider DAP or SSP")
-            if fertilizer == "Balanced NPK":
-                fertilizer = "DAP"
+        # Priority 2: Crop specific adjustment if nutrients are borderline
+        if 30 <= n <= 60:
+            if crop_type and crop_type.lower() in ['rice', 'paddy', 'sugarcane']:
+                fertilizer = "Urea (High N Required)"
+            elif crop_type and crop_type.lower() in ['wheat', 'maize', 'millets']:
+                fertilizer = "28-28-0 (Ammonium Phosphate)"
         
-        if k < 50:
-            recommendations.append(f"Low Potassium ({k} mg/kg). Consider MOP")
+        # Generate custom reasoning
+        reasoning = self._generate_reasoning(fertilizer, crop_type, n, p, k, 25, 60, 45, None)
+            
+        tips = self._generate_application_tips(fertilizer, crop_type)
         
-        if not recommendations:
-            recommendations.append("Soil nutrient levels appear balanced")
+        # Translate
+        from backend.utils.translator import translate_text
+        trans_fertilizer = translate_text(fertilizer, lang)
+        trans_reasoning = [translate_text(r, lang) for r in reasoning]
+        trans_tips = [translate_text(t, lang) for t in tips]
         
         return {
             'fertilizer': fertilizer,
+            'translated_fertilizer': trans_fertilizer,
             'confidence': 0.75,
-            'reasoning': recommendations
+            'reasoning': trans_reasoning,
+            'application_tips': trans_tips
         }
 

@@ -19,7 +19,7 @@ class AggregationService:
             response = supabase.table('sensor_readings')\
                 .select('*')\
                 .eq('device_id', device_id)\
-                .gte('timestamp', thirty_days_ago)\
+                .gte('created_at', thirty_days_ago)\
                 .execute()
             
             data = response.data
@@ -36,7 +36,7 @@ class AggregationService:
             agg = {
                 'temperature': round(df['temperature'].mean(), 2),
                 'humidity': round(df['humidity'].mean(), 2),
-                'ph': round(df['ph'].mean(), 2),
+                'ph': round(df['soil_ph'].mean(), 2) if 'soil_ph' in df.columns else round(df['ph'].mean(), 2) if 'ph' in df.columns else 6.5,
                 'N': round(df['nitrogen'].mean(), 2),
                 'P': round(df['phosphorus'].mean(), 2),
                 'K': round(df['potassium'].mean(), 2),
@@ -47,6 +47,44 @@ class AggregationService:
             
         except Exception as e:
             print(f"Aggregation Service Error: {e}")
+            return self._mock_aggregation()
+
+    def get_last_n_average(self, device_id='MM-POLE-001', n=30):
+        """
+        Calculates average of the LAST N records for the device.
+        Standardized for verified column 'soil_ph'.
+        """
+        if not supabase:
+            return self._mock_aggregation()
+
+        try:
+            response = supabase.table('sensor_readings')\
+                .select('*')\
+                .eq('device_id', device_id)\
+                .order('created_at', desc=True)\
+                .limit(n)\
+                .execute()
+            
+            data = response.data
+            if not data:
+                return self._mock_aggregation()
+                
+            df = pd.DataFrame(data)
+            
+            agg = {
+                'temperature': round(df['temperature'].mean(), 2),
+                'humidity': round(df['humidity'].mean(), 2),
+                'ph': round(df['soil_ph'].mean(), 2) if 'soil_ph' in df.columns else round(df['ph'].mean(), 2) if 'ph' in df.columns else 6.5,
+                'N': round(df['nitrogen'].mean(), 2),
+                'P': round(df['phosphorus'].mean(), 2),
+                'K': round(df['potassium'].mean(), 2),
+                'rainfall': round(df['rainfall'].mean(), 2) if 'rainfall' in df.columns else 0.0,
+                'moisture': round(df['moisture'].mean(), 2) if 'moisture' in df.columns else 0.0
+            }
+            return agg
+            
+        except Exception as e:
+            print(f"Record Aggregation Error: {e}")
             return self._mock_aggregation()
 
     def _mock_aggregation(self):

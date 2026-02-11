@@ -25,8 +25,10 @@ def debug_analysis():
         print("ERROR: No data loaded.")
         return
 
-    # print(f"Dataset Shape: {df.shape}")
-    # print(f"Columns: {df.columns.tolist()}")
+    print(f"Dataset Shape: {df.shape}")
+    print(f"Columns: {df.columns.tolist()}")
+    print("\nFirst row of data:")
+    print(df.iloc[0])
     
     # Check Class Distribution
     # print("\nClass Distribution:")

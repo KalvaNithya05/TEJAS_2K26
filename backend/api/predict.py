@@ -2,14 +2,17 @@ from flask import Blueprint, request, jsonify
 from ml.predictor import CropPredictor
 from ml.fertilizer_recommender import FertilizerRecommender
 from ml.preprocess import DataPreprocessor
+from ml.yield_predictor import YieldPredictor
 from services.weather_service import WeatherService
 from services.prediction_storage_service import PredictionStorageService
+from datetime import datetime
 
 predict_bp = Blueprint('predict', __name__)
 
 # Initialize services once
 predictor = CropPredictor()
 fertilizer_recommender = FertilizerRecommender()
+yield_predictor = YieldPredictor()
 preprocessor = DataPreprocessor()
 weather_service = WeatherService()
 storage_service = PredictionStorageService()
@@ -18,15 +21,9 @@ storage_service = PredictionStorageService()
 def recommend():
     """
     Cascaded ML Pipeline Endpoint:
-    1. Predict crop using sensor data
-    2. Store prediction in real_world_dataset
-    3. Predict fertilizer using crop + sensor data
-    4. Return crop predictions + fertilizer recommendation with reasoning
-    
-    Input JSON: { 
-        N, P, K, ph, temperature?, humidity?, rainfall?, moisture?, 
-        location?, device_id?, soil_type? 
-    }
+    1. Predict top N crops using sensor data
+    2. For EACH crop, predict Fertilizer and Yield
+    3. Return consolidated recommendations
     """
     try:
         data = request.json
@@ -43,148 +40,108 @@ def recommend():
             if 'humidity' not in data: data['humidity'] = weather['humidity']
             if 'rainfall' not in data: data['rainfall'] = weather['rainfall']
 
-        # Default moisture if not provided (assume moderate moisture)
+        # Default moisture if not provided
         if 'moisture' not in data:
-            data['moisture'] = 45.0  # Default moderate moisture
+            data['moisture'] = 45.0
 
-        # ========================================
-        # STEP 1: CROP PREDICTION
-        # ========================================
-        # Preprocess features for crop model
-        # Expects: N, P, K, temperature, humidity, ph, rainfall
+        # Preprocess features
         try:
             features = preprocessor.preprocess(data)
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
 
         # Get crop predictions
-        crop_predictions = predictor.predict(features, top_n=3)
+        crop_type_input = data.get('crop_type')
+        lang = data.get('lang', 'en')
+        crop_predictions = predictor.predict(features, top_n=3, lang=lang, crop_type=crop_type_input)
         
-        if not crop_predictions or len(crop_predictions) == 0:
+        if not crop_predictions:
             return jsonify({'error': 'Crop prediction failed'}), 500
         
-        # Get top predicted crop
-        top_crop = crop_predictions[0]
-        predicted_crop_name = top_crop['crop']
-        crop_confidence = top_crop['confidence']
-        crop_reasoning = top_crop.get('reasoning', [])
-
-        # ========================================
-        # STEP 2: STORE PREDICTION DATA
-        # ========================================
-        # Store the prediction in real_world_dataset table
-        sensor_data = {
-            'N': data.get('N', 0),
-            'P': data.get('P', 0),
-            'K': data.get('K', 0),
-            'temperature': data.get('temperature', 0),
-            'humidity': data.get('humidity', 0),
-            'moisture': data.get('moisture', 0),
-            'ph': data.get('ph', 7.0),
-            'rainfall': data.get('rainfall', 0),
-            'soil_type': data.get('soil_type', None)
-        }
-        
-        device_id = data.get('device_id', 'web_client')
-        location = data.get('location', None)
-        
-        # Store Crop Prediction
-        storage_service.store_crop_prediction(
-            sensor_data=sensor_data,
-            predicted_crop=predicted_crop_name,
-            confidence=crop_confidence,
-            device_id=device_id,
-            location=location,
-            translated_crop=top_crop.get('translated_crop')
-        )
-
-        # ========================================
-        # STEP 3: FERTILIZER PREDICTION
-        # ========================================
-        # Use ML-based fertilizer recommendation with predicted crop as contextual feature
-        fertilizer_result = fertilizer_recommender.recommend(
-            temperature=float(data.get('temperature', 25)),
-            humidity=float(data.get('humidity', 60)),
-            moisture=float(data.get('moisture', 45)),
-            soil_type=data.get('soil_type', 'Loamy'),
-            crop_type=predicted_crop_name,  # Use predicted crop as contextual feature
-            nitrogen=float(data.get('N', 0)),
-            potassium=float(data.get('K', 0)),
-            phosphorous=float(data.get('P', 0)),
-            lang=data.get('lang', 'en')
-        )
-        
-        # Store Fertilizer Prediction
-        storage_service.store_fertilizer_prediction(
-            input_data={
-                'n': data.get('N', 0),
-                'p': data.get('P', 0),
-                'k': data.get('K', 0),
-                'temp': data.get('temperature', 25),
-                'humidity': data.get('humidity', 60),
-                'moisture': data.get('moisture', 45),
-                'soil_type': data.get('soil_type', 'Loamy'),
-                'crop': predicted_crop_name
-            },
-            recommendation=fertilizer_result['fertilizer'],
-            confidence=fertilizer_result['confidence'],
-            reasoning=fertilizer_result['reasoning'],
-            translated_fertilizer=fertilizer_result.get('translated_fertilizer')
-        )
-
-        # ========================================
-        # STEP 4: YIELD PREDICTION (Integrated)
-        # ========================================
-        from ml.yield_predictor import YieldPredictor
-        from datetime import datetime
-        
-        yield_predictor = YieldPredictor()
-        
-        # Auto-determine season
-        month = datetime.now().month
-        if 6 <= month <= 9:
-            season = 'Kharif'
-        elif 10 <= month <= 2:
-            season = 'Rabi'
-        else:
-            season = 'Zaid'
+        # Determine season (User input > Auto-detect)
+        season = data.get('season')
+        if not season:
+            month = datetime.now().month
+            if 6 <= month <= 9: session = 'Kharif'
+            elif 10 <= month <= 2: session = 'Rabi'
+            else: session = 'Zaid'
             
-        # Default estimtates for Yield inputs if not provided (Simplification for single-click)
-        # In a real app, we might ask user or use historical averages for the region
         dist_avg_fert = 120.0 # kg/ha
         dist_avg_pest = 0.5   # kg/ha
         
-        predicted_yield_val = yield_predictor.predict(
-            state=data.get('state', 'Telangana'), 
-            district=data.get('district', 'Warangal'),
-            crop=predicted_crop_name,
-            season=season,
-            rainfall=float(data.get('rainfall', 100)),
-            fertilizer=float(data.get('fertilizer_usage', dist_avg_fert)),
-            pesticide=float(data.get('pesticide_usage', dist_avg_pest)),
-            soil_type=data.get('soil_type', 'Loamy')
-        )
+        # Combined results
+        final_recommendations = []
+        
+        for crop_info in crop_predictions:
+            crop_name = crop_info['crop']
+            
+            # 1. Fertilizer Recommendation
+            fertilizer_result = fertilizer_recommender.recommend(
+                temperature=float(data.get('temperature', 25)),
+                humidity=float(data.get('humidity', 60)),
+                moisture=float(data.get('moisture', 45)),
+                soil_type=data.get('soil_type', 'Loamy'),
+                crop_type=crop_name,
+                nitrogen=float(data.get('N', 0)),
+                potassium=float(data.get('K', 0)),
+                phosphorous=float(data.get('P', 0)),
+                lang=lang
+            )
+            
+            # 2. Yield Prediction
+            predicted_yield_val = yield_predictor.predict(
+                state=data.get('state', 'Telangana'), 
+                district=data.get('district', 'Warangal'),
+                crop=crop_name,
+                season=season,
+                rainfall=float(data.get('rainfall', 100)),
+                fertilizer=float(data.get('fertilizer_usage', dist_avg_fert)),
+                pesticide=float(data.get('pesticide_usage', dist_avg_pest)),
+                soil_type=data.get('soil_type', 'Loamy')
+            )
+            
+            # Store primary prediction only (top crop) if needed, 
+            # but usually we want to store what the user finally selects.
+            # For now, let's keep it simple and return all.
+            
+            final_recommendations.append({
+                'crop': crop_info,
+                'fertilizer': {
+                    'name': fertilizer_result['fertilizer'],
+                    'translated_name': fertilizer_result.get('translated_fertilizer'),
+                    'confidence': fertilizer_result['confidence'],
+                    'reasoning': fertilizer_result['reasoning'],
+                    'application_tips': fertilizer_result.get('application_tips', [])
+                },
+                'yield': {
+                    'predicted_yield': predicted_yield_val,
+                    'unit': 'tons/ha',
+                    'season': season
+                }
+            })
 
-        # ========================================
-        # STEP 5: RETURN COMPLETE RESPONSE
-        # ========================================
+        # Storage logic (optional: store top recommendation)
+        if final_recommendations:
+            top = final_recommendations[0]
+            storage_service.store_crop_prediction(
+                sensor_data=data, # Simple pass through
+                predicted_crop=top['crop']['crop'],
+                confidence=top['crop']['confidence'],
+                device_id=data.get('device_id', 'web_client'),
+                location=data.get('location', None)
+            )
+
         return jsonify({
             'status': 'success',
-            'crops': crop_predictions,
-            'fertilizer_recommendation': {
-                'fertilizer': fertilizer_result['fertilizer'],
-                'confidence': fertilizer_result['confidence'],
-                'reasoning': fertilizer_result['reasoning'],
-                'translated_fertilizer': fertilizer_result.get('translated_fertilizer')
-            },
-            'yield_prediction': {
-                'predicted_yield': predicted_yield_val,
-                'unit': 'tons/ha',
-                'season': season
-            },
-            'used_params': data,
-            'data_stored': True  # Indicates prediction was stored in database
+            'recommendations': final_recommendations,
+            'used_params': data
         })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Internal Server Error', 'details': str(e)}), 500
+
 
     except Exception as e:
         print(f"Prediction API Error: {e}")

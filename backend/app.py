@@ -22,10 +22,14 @@ def create_app():
         from api.predict import predict_bp
         from api.sensor_data import sensor_bp
         from api.report import report_bp
+        from services.disease.api import disease_bp
+        from api.sms import sms_api
 
         app.register_blueprint(predict_bp, url_prefix='/api/predict')
         app.register_blueprint(sensor_bp, url_prefix='/api/sensor') # '/api/sensor' matches pi config
         app.register_blueprint(report_bp, url_prefix='/api/report')
+        app.register_blueprint(disease_bp, url_prefix='/api/disease')
+        app.register_blueprint(sms_api, url_prefix='/api/sms')
     except ImportError as e:
         print(f"Warning: Could not import some API blueprints: {e}")
         print("Note: This is expected during initial generation phase.")
@@ -41,6 +45,14 @@ def create_app():
     return app
 
 if __name__ == '__main__':
+    from services.thingspeak_worker import run_thingspeak_ingestion
+    import threading
+    
     app = create_app()
+    
+    # Start background ThingSpeak worker
+    t = threading.Thread(target=run_thingspeak_ingestion, daemon=True)
+    t.start()
+    
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

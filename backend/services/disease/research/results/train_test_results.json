@@ -1,0 +1,89 @@
+2026-01-22 00:16:39.636271: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-01-22 00:16:46.754240: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+C:\Users\NITHYA\AppData\Local\Programs\Python\Python313\Lib\site-packages\keras\src\export\tf2onnx_lib.py:8: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+  if not hasattr(np, "object"):
+2026-01-22 00:16:52.221823: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+Loaded model and 15 classes.
+[
+  {
+    "file": "0012b9d2-2130-4a06-a834-b1f3af34f57e___RS_Erly.B 8389.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Pepper__bell___Bacterial_spot",
+    "confidence": 0.3991055488586426,
+    "eb_score": 0.0385444313287735,
+    "lb_score": 0.0028252669144421816
+  },
+  {
+    "file": "0034a551-9512-44e5-ba6c-827f85ecc688___RS_Erly.B 9432.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Early_blight",
+    "confidence": 0.5500648021697998,
+    "eb_score": 0.5500648021697998,
+    "lb_score": 0.2781429886817932
+  },
+  {
+    "file": "004cbe60-8ff9-4965-92df-e86694d5e9ba___RS_Erly.B 8253.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Early_blight",
+    "confidence": 0.5026781558990479,
+    "eb_score": 0.5026781558990479,
+    "lb_score": 0.10110548138618469
+  },
+  {
+    "file": "00c5c908-fc25-4710-a109-db143da23112___RS_Erly.B 7778.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Spider_mites_Two_spotted_spider_mite",
+    "confidence": 0.39592593908309937,
+    "eb_score": 0.01838085800409317,
+    "lb_score": 0.010497336275875568
+  },
+  {
+    "file": "00e7c4b2-3005-4558-9cfa-235e356cb7a8___RS_Erly.B 7844.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Septoria_leaf_spot",
+    "confidence": 0.4397009611129761,
+    "eb_score": 0.09514449536800385,
+    "lb_score": 0.04258207604289055
+  },
+  {
+    "file": "0114f7b3-7f56-4bef-aa47-7a82da142d4b___RS_Erly.B 7437.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Bacterial_spot",
+    "confidence": 0.47916799783706665,
+    "eb_score": 0.1274440586566925,
+    "lb_score": 0.15727777779102325
+  },
+  {
+    "file": "011aa278-a39e-40b0-b6e4-2e2f835889f0___RS_Erly.B 8251.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Early_blight",
+    "confidence": 0.32803255319595337,
+    "eb_score": 0.32803255319595337,
+    "lb_score": 0.2424633651971817
+  },
+  {
+    "file": "01861c93-ea8b-4820-aaa8-cc6003b3e75b___RS_Erly.B 7855.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Late_blight",
+    "confidence": 0.2770572900772095,
+    "eb_score": 0.17504477500915527,
+    "lb_score": 0.2770572900772095
+  },
+  {
+    "file": "01f87f04-ff38-4aba-b7d1-587aa06e5282___RS_Erly.B 7851.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato__Target_Spot",
+    "confidence": 0.3867116868495941,
+    "eb_score": 0.32890352606773376,
+    "lb_score": 0.11442738026380539
+  },
+  {
+    "file": "0208ed52-1b28-4c9c-88e3-4667581e1109___RS_Erly.B 7829.JPG",
+    "actual": "Tomato_Early_blight",
+    "predicted": "Tomato_Early_blight",
+    "confidence": 0.3490438759326935,
+    "eb_score": 0.3490438759326935,
+    "lb_score": 0.10954219102859497
+  }
+]

@@ -4,10 +4,7 @@ from datetime import datetime
 class PredictionStorageService:
     """
     Service to store real-world prediction data in the database.
-    This data serves as:
-    - Historical record of predictions
-    - Input for fertilizer recommendation
-    - Foundation for future model improvement
+    Standardized to use crop_predictions and created_at.
     """
     
     def store_crop_prediction(self, sensor_data, predicted_crop, confidence, device_id='web_client', location=None, translated_crop=None):
@@ -22,10 +19,10 @@ class PredictionStorageService:
                 'created_at': datetime.now().isoformat(),
                 'device_id': device_id,
                 'city': location,
-                'nitrogen': float(sensor_data.get('N', 0)),
-                'phosphorus': float(sensor_data.get('P', 0)),
-                'potassium': float(sensor_data.get('K', 0)),
-                'ph': float(sensor_data.get('ph', 0)),
+                'nitrogen': float(sensor_data.get('nitrogen') or sensor_data.get('N', 0)),
+                'phosphorus': float(sensor_data.get('phosphorus') or sensor_data.get('P', 0)),
+                'potassium': float(sensor_data.get('potassium') or sensor_data.get('K', 0)),
+                'ph': float(sensor_data.get('ph') or sensor_data.get('pH', 0)),
                 'temperature': float(sensor_data.get('temperature', 0)),
                 'humidity': float(sensor_data.get('humidity', 0)),
                 'rainfall': float(sensor_data.get('rainfall', 0)),
@@ -57,17 +54,17 @@ class PredictionStorageService:
         try:
             record = {
                 'created_at': datetime.now().isoformat(),
-                'nitrogen': float(input_data.get('n', 0)),
-                'phosphorus': float(input_data.get('p', 0)),
-                'potassium': float(input_data.get('k', 0)),
-                'temperature': float(input_data.get('temp', 0)),
+                'nitrogen': float(input_data.get('nitrogen') or input_data.get('n', 0)),
+                'phosphorus': float(input_data.get('phosphorus') or input_data.get('p', 0)),
+                'potassium': float(input_data.get('potassium') or input_data.get('k', 0)),
+                'temperature': float(input_data.get('temperature') or input_data.get('temp', 0)),
                 'humidity': float(input_data.get('humidity', 0)),
                 'moisture': float(input_data.get('moisture', 0)),
                 'soil_type': input_data.get('soil_type'),
                 'crop_type': input_data.get('crop'),
                 'recommended_fertilizer': recommendation,
                 'confidence': float(confidence),
-                'reasoning': reasoning, # Supabase handles array if column is text[]
+                'reasoning': reasoning,
                 'translated_fertilizer': translated_fertilizer
             }
             
@@ -84,23 +81,16 @@ class PredictionStorageService:
     
     def get_recent_predictions(self, device_id='pi_01', limit=10):
         """
-        Retrieve recent predictions for a device.
-        
-        Args:
-            device_id: Device identifier
-            limit: Maximum number of records to retrieve
-            
-        Returns:
-            list: Recent prediction records
+        Retrieve recent crop predictions for a device.
         """
         if not supabase:
             return []
         
         try:
-            response = supabase.table('real_world_dataset')\
+            response = supabase.table('crop_predictions')\
                 .select('*')\
                 .eq('device_id', device_id)\
-                .order('timestamp', desc=True)\
+                .order('created_at', desc=True)\
                 .limit(limit)\
                 .execute()
             
@@ -113,12 +103,6 @@ class PredictionStorageService:
     def get_crop_statistics(self, days=30):
         """
         Get statistics on predicted crops over the last N days.
-        
-        Args:
-            days: Number of days to look back
-            
-        Returns:
-            dict: Crop distribution statistics
         """
         if not supabase:
             return {}
@@ -127,15 +111,14 @@ class PredictionStorageService:
             from datetime import timedelta
             cutoff_date = (datetime.now() - timedelta(days=days)).isoformat()
             
-            response = supabase.table('real_world_dataset')\
+            response = supabase.table('crop_predictions')\
                 .select('predicted_crop')\
-                .gte('timestamp', cutoff_date)\
+                .gte('created_at', cutoff_date)\
                 .execute()
             
             if not response.data:
                 return {}
             
-            # Count crop occurrences
             crop_counts = {}
             for record in response.data:
                 crop = record['predicted_crop']

@@ -6,6 +6,9 @@ requests
 numpy
 pandas
 scikit-learn
+scikit-learn
+tensorflow-cpu
+Pillow
 # Hardware libraries (install only on Pi)
 # Adafruit_DHT
 # RPi.GPIO

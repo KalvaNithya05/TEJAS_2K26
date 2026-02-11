@@ -4,6 +4,15 @@ import numpy as np
 import random
 
 class CropPredictor:
+    AGRI_CROPS = [
+        'rice', 'maize', 'chickpea', 'kidneybeans', 'pigeonpeas', 
+        'mothbeans', 'mungbean', 'blackgram', 'lentil', 'cotton', 'jute'
+    ]
+    HORTI_CROPS = [
+        'pomegranate', 'banana', 'mango', 'grapes', 'watermelon', 
+        'muskmelon', 'apple', 'orange', 'papaya', 'coconut', 'coffee'
+    ]
+
     def __init__(self):
         """
         Initializes the predictor by loading models.
@@ -39,12 +48,13 @@ class CropPredictor:
     # Import translator
     from backend.utils.translator import translate_text
 
-    def predict(self, features, top_n=3, lang='en'):
+    def predict(self, features, top_n=3, lang='en', crop_type=None):
         """
         Predicts top N crops based on features.
         :param features: List or numpy array of raw features [N, P, K, Temp, Hum, pH, Rain]
         :param top_n: Number of recommendations to return
         :param lang: Language code ('en', 'hi', 'te', etc)
+        :param crop_type: 'agriculture', 'horticulture', or None
         :return: List of dicts [{'crop': str, 'confidence': float, 'local_name': str}]
         """
         if self.agri_model and self.label_encoder:
@@ -57,7 +67,7 @@ class CropPredictor:
                     print("Warning: All sensor inputs are zero. Skipping prediction.")
                     return []
                 
-                # Apply scaling using the loaded scaler inside preprocessor
+                # Apply scaling
                 if self.preprocessor.scaler:
                     features_scaled = self.preprocessor.scaler.transform(features_array)
                 else:
@@ -65,7 +75,22 @@ class CropPredictor:
 
                 # 2. Predict Probabilities
                 probs = self.agri_model.predict_proba(features_scaled)[0]
+                classes = self.label_encoder.classes_
                 
+                # FILTERING LOGIC
+                if crop_type:
+                    if crop_type.lower() == 'agriculture':
+                        allowed = set(self.AGRI_CROPS)
+                    elif crop_type.lower() == 'horticulture':
+                        allowed = set(self.HORTI_CROPS)
+                    else:
+                        allowed = None
+                    
+                    if allowed:
+                        for i, crop_name in enumerate(classes):
+                            if crop_name.lower() not in allowed:
+                                probs[i] = 0.0 # Suppress disallowed crops
+
                 # 3. Get Top N
                 top_indices = probs.argsort()[-top_n:][::-1]
                 
@@ -77,16 +102,8 @@ class CropPredictor:
                     crop_name = classes[idx]
                     raw_confidence = probs[idx]
                     
-                    # SCALE CONFIDENCE: Clamp between 0.60 and 0.85 to be realistic
-                    # Linear mapping: 0.0 -> 0.60, 1.0 -> 0.85 (APPROXIMATION for UX)
-                    # If raw is very high >0.9, cap at 0.88. If low, keep low but floor at 0.5.
-                    if raw_confidence > 0.95:
-                         confidence = 0.88
-                    elif raw_confidence < 0.5:
-                         confidence = max(0.40, raw_confidence)
-                    else:
-                         confidence = 0.60 + (raw_confidence * 0.25)
-                         if confidence > 0.90: confidence = 0.89
+                    # Use raw confidence from the calibrated model
+                    confidence = raw_confidence
 
                     # Filter out very low confidence predictions
                     if confidence > 0.01: 
@@ -103,11 +120,13 @@ class CropPredictor:
 
             except Exception as e:
                 print(f"Prediction Error: {e}")
+                import traceback
+                traceback.print_exc()
                 # Fallback only on error
-                return self._mock_predict(top_n, features, lang)
+                return self._mock_predict(top_n, features, lang, crop_type)
             
         # Fallback if no model loaded
-        return self._mock_predict(top_n, features, lang)
+        return self._mock_predict(top_n, features, lang, crop_type)
 
     def _generate_reasoning(self, crop, features, lang='en'):
         """
@@ -127,9 +146,9 @@ class CropPredictor:
              temp = f[3]
              ph = f[5]
              
-             if rain > 150 and crop.lower() in ['rice', 'jute', 'sugarcoffee', 'coconut']:
+             if rain > 150 and crop.lower() in ['rice', 'jute', 'sugarcane', 'coffee', 'coconut', 'banana', 'papaya']:
                  reasoning.append("High rainfall is suitable for this crop.")
-             elif rain < 50 and crop.lower() in ['chickpea', 'mothbeans', 'lentil', 'gram']:
+             elif rain < 50 and crop.lower() in ['chickpea', 'mothbeans', 'lentil', 'blackgram', 'mungbean']:
                  reasoning.append("Suitable for low rainfall conditions.")
              
              if temp > 30 and crop.lower() not in ['wheat', 'pea']:
@@ -147,22 +166,38 @@ class CropPredictor:
         # Translate each sentence
         return [translate_text(r.strip(), lang) for r in reasoning]
 
-    def _mock_predict(self, top_n, features, lang='en'):
+    def _mock_predict(self, top_n, features, lang='en', crop_type=None):
         """
-        Mock prediction logic based on simple rules or random choice for demo.
+        Deterministic mock prediction logic based on features.
+        The same features will always yield the same recommendations.
         """
+        import hashlib
         from backend.utils.translator import translate_text
-        # List of crops from existing data
-        crops = [
-            'rice', 'maize', 'chickpea', 'kidneybeans', 'pigeonpeas', 
-            'mothbeans', 'mungbean', 'blackgram', 'lentil', 'pomegranate', 
-            'banana', 'mango', 'grapes', 'watermelon', 'muskmelon', 'apple', 
-            'orange', 'papaya', 'coconut', 'cotton', 'jute', 'coffee'
-        ]
         
-        # Simple heuristic... (Logic same as before)
-        # features list might be flat or nested depending on caller, handle both
-        if isinstance(features[0], list) or isinstance(features[0], np.ndarray):
+        # 1. Prepare pool
+        all_crops = self.AGRI_CROPS + self.HORTI_CROPS
+        if crop_type:
+            if crop_type.lower() == 'agriculture':
+                pool = self.AGRI_CROPS
+            elif crop_type.lower() == 'horticulture':
+                pool = self.HORTI_CROPS
+            else:
+                pool = all_crops
+        else:
+            pool = all_crops
+            
+        # 2. Create deterministic seed from features
+        try:
+            feature_str = str(features).encode('utf-8')
+            feature_hash = hashlib.sha256(feature_str).hexdigest()
+            seed = int(feature_hash, 16) % (2**32)
+        except Exception:
+            seed = 42
+            
+        rng = random.Random(seed)
+        
+        # 3. Filter candidates based on rainfall (deterministic heuristic)
+        if isinstance(features[0], (list, np.ndarray)):
             flat_features = features[0]
         else:
             flat_features = features
@@ -170,18 +205,28 @@ class CropPredictor:
         rainfall = flat_features[6] if len(flat_features) > 6 else 100 
         
         if rainfall > 200:
-            candidates = ['rice', 'jute', 'coconut', 'papaya']
+            candidates = [c for c in pool if c in ['rice', 'jute', 'coconut', 'papaya']]
+            if not candidates: candidates = pool
         elif rainfall < 50:
-            candidates = ['mothbeans', 'chickpea', 'lentil', 'muskmelon']
+            candidates = [c for c in pool if c in ['mothbeans', 'chickpea', 'lentil', 'muskmelon']]
+            if not candidates: candidates = pool
         else:
-            candidates = crops
+            candidates = pool
             
-        selected = random.sample(candidates if len(candidates) >= top_n else crops, top_n)
+        # 4. Deterministically select top N
+        # We shuffle the candidate list with our seeded RNG
+        temp_candidates = list(candidates)
+        rng.shuffle(temp_candidates)
+        selected = temp_candidates[:min(top_n, len(temp_candidates))]
         
+        # 5. Build results
         results = []
         for crop in selected:
-            # Realistic confidence: 0.65 to 0.85
-            confidence = random.uniform(0.65, 0.85)
+            # Deterministic confidence based on crop name and seed
+            crop_seed = seed + sum(ord(c) for c in crop)
+            crop_rng = random.Random(crop_seed)
+            confidence = crop_rng.uniform(0.65, 0.85)
+            
             local_name = translate_text(crop, lang)
             reasoning = self._generate_reasoning(crop, flat_features, lang)
             results.append({

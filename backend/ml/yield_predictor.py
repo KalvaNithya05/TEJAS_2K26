@@ -27,7 +27,7 @@ class YieldPredictor:
         Predicts yield.
         """
         if not self.model:
-            return None
+            return self._rule_based_fallback(crop, rainfall, fertilizer)
             
         try:
             # Prepare input array
@@ -79,4 +79,38 @@ class YieldPredictor:
             
         except Exception as e:
             print(f"Yield Prediction Error: {e}")
-            return None
+            return self._rule_based_fallback(crop, rainfall, fertilizer)
+
+    def _rule_based_fallback(self, crop, rainfall, fertilizer):
+        """
+        Fallback yield estimation based on crop averages.
+        Returns yield in tons/ha.
+        """
+        # Base yields in tons/ha
+        base_yields = {
+            'rice': 4.0, 'paddy': 4.0,
+            'wheat': 3.5,
+            'maize': 5.0,
+            'cotton': 2.0,
+            'sugarcane': 70.0,
+            'millet': 1.5,
+            'groundnut': 2.5,
+            'coffee': 1.0
+        }
+        
+        crop_lower = crop.lower() if crop else 'rice'
+        estimated_yield = base_yields.get(crop_lower, 3.0)
+        
+        # Adjust based on inputs (simple heuristic)
+        # Rainfall factor
+        rain = float(rainfall or 0)
+        if rain < 50: estimated_yield *= 0.8  # Drought
+        elif rain > 200: estimated_yield *= 0.9 # Flood risk
+        else: estimated_yield *= 1.1 # Good rain
+        
+        # Fertilizer factor
+        fert = float(fertilizer or 0)
+        if fert < 50: estimated_yield *= 0.9 # Low fertilizer
+        elif fert > 150: estimated_yield *= 1.1 # good fertilizer
+        
+        return round(estimated_yield, 2)

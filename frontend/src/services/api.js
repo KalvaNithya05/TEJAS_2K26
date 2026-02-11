@@ -11,6 +11,17 @@ export const getLatestSensorData = async () => {
     }
 };
 
+export const getAggregateData = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/sensor/aggregate`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching aggregate data:", error);
+        return null;
+    }
+};
+
 export const getRecommendations = async (inputData) => {
     try {
         const response = await fetch(`${API_BASE_URL}/predict/recommend`, {
@@ -36,3 +47,31 @@ export const getSoilReport = async () => {
         return null;
     }
 }
+
+// Disease Detection
+export const detectDisease = async (formData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/disease/predict`, {
+            method: 'POST',
+            body: formData, // FormData contains the file
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error detecting disease:", error);
+        throw error;
+    }
+};
+
+export const getSensorHistory = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/sensor/history`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching sensor history:", error);
+        return [];
+    }
+};
