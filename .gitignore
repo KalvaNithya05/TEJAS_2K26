@@ -1,4 +1,25 @@
-*.pkl
-backend/models/*.pkl
-.env
+# Python
+__pycache__/
+*.pyc
 
+# Node
+node_modules/
+
+# Environment files
+.env
+.env.*
+
+# IDE files
+.vscode/
+
+# Generated files
+*.pdf
+
+# Data and models
+backend/training/
+backend/dl/
+test_images/
+data/
+
+# Logs
+*.log
