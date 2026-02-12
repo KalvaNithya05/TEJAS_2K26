@@ -4,7 +4,6 @@ An AI-powered IoT solution to help Indian farmers optimize crop selection and fe
 
 ## 📁 Project Structure
 
-- **raspberry_pi/**: Sensor interface, data collection, and local aggregation.
 - **backend/**: Flask API, ML Models (Agri/Horti), and Services (Supabase/Weather).
 - **frontend/**: React UI for Dashboard, Prediction, and Manual Entry.
 - **database/**: SQL schemas and seed data.
