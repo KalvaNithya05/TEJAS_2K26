@@ -68,7 +68,6 @@ def receive_data():
                 'phosphorus': p_val,
                 'potassium': k_val,
                 'moisture': data.get('moisture'),
-                'rainfall': data.get('rainfall', 0.0),
                 'created_at': datetime.now().isoformat()
             }
             

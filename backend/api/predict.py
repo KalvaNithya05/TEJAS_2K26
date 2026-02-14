@@ -53,7 +53,8 @@ def recommend():
         # Get crop predictions
         crop_type_input = data.get('crop_type')
         lang = data.get('lang', 'en')
-        crop_predictions = predictor.predict(features, top_n=3, lang=lang, crop_type=crop_type_input)
+        crop_predictions = predictor.predict(features, top_n=5, lang=lang, crop_type=crop_type_input)
+
         
         if not crop_predictions:
             return jsonify({'error': 'Crop prediction failed'}), 500

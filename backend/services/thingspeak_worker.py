@@ -1,59 +1,53 @@
-import os
-import requests
 import time
-from datetime import datetime
-from config.supabase_client import supabase
+from datetime import datetime, timezone
 
-def fetch_thingspeak_data():
-    read_key = os.getenv("THINGSPEAK_READ_KEY")
-    channel_id = os.getenv("THINGSPEAK_CHANNEL_ID")
-    
-    if not read_key or not channel_id:
-        # print("ThingSpeak Read Key or Channel ID missing. Skipping background ingestion.")
-        return None
+from services.thingspeak_service import (
+    fetch_latest_thingspeak_data,
+    store_in_supabase,
+    get_last_supabase_timestamp
+)
 
-    url = f"https://api.thingspeak.com/channels/{channel_id}/feeds/last.json?api_key={read_key}"
-    
-    try:
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-    except Exception as e:
-        print(f"ThingSpeak Fetch error: {e}")
-    return None
 
 def run_thingspeak_ingestion():
-    """
-    Background worker that polls ThingSpeak every 15 seconds 
-    and syncs the latest data to Supabase if it's new.
-    """
-    last_entry_id = None
-    
-    while True:
-        data = fetch_thingspeak_data()
-        
-        if data and data.get('entry_id') != last_entry_id:
-            last_entry_id = data.get('entry_id')
-            
-            # Map ThingSpeak fields (Field1, Field2, etc.) to Supabase schema
-            # Assuming standard mapping or using metadata if available
-            record = {
-                'device_id': 'TS_STATION_01',
-                'temperature': float(data.get('field1', 0)),
-                'humidity': float(data.get('field2', 0)),
-                'moisture': float(data.get('field3', 0)),
-                'soil_ph': float(data.get('field4', 0)),
-                'nitrogen': float(data.get('field5', 0)),
-                'phosphorus': float(data.get('field6', 0)),
-                'potassium': float(data.get('field7', 0)),
-                'timestamp': data.get('created_at', datetime.now().isoformat())
-            }
-            
-            try:
-                if supabase:
-                    supabase.table('sensor_readings').insert(record).execute()
-                    print(f"ThingSpeak synced entry {last_entry_id} to Supabase")
-            except Exception as e:
-                print(f"Sync error: {e}")
+    print("📡 ThingSpeak ingestion started")
 
-        time.sleep(15)
+    while True:
+        try:
+            # 1️⃣ Fetch latest data from ThingSpeak
+            feed = fetch_latest_thingspeak_data()
+
+            if not feed:
+                print("⚠️ No data from ThingSpeak")
+                time.sleep(60)
+                continue
+
+            # 2️⃣ Parse ThingSpeak timestamp (UTC)
+            ts_created_at = feed.get("created_at")
+            if ts_created_at:
+                ts_dt = datetime.fromisoformat(
+                    ts_created_at.replace("Z", "+00:00")
+                )
+
+                # 3️⃣ Get last timestamp from Supabase
+                last_db_ts = get_last_supabase_timestamp()
+
+                if last_db_ts:
+                    db_dt = datetime.fromisoformat(
+                        last_db_ts.replace("Z", "+00:00")
+                    )
+
+                    # 4️⃣ Prevent duplicate inserts
+                    if ts_dt <= db_dt:
+                        print(f"⏸️ No new data (Last TS: {ts_dt}, Last DB: {db_dt})")
+                        time.sleep(60)
+                        continue
+
+            # 5️⃣ Insert new data
+            store_in_supabase(feed)
+            print("✅ New data inserted into Supabase")
+
+        except Exception as e:
+            print(f"❌ Ingestion error: {e}")
+
+        # 6️⃣ Poll every 60 seconds
+        time.sleep(60)

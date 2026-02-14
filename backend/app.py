@@ -51,6 +51,7 @@ if __name__ == '__main__':
     app = create_app()
     
     # Start background ThingSpeak worker
+    print("Initiating ThingSpeak background worker thread...")
     t = threading.Thread(target=run_thingspeak_ingestion, daemon=True)
     t.start()
     

@@ -106,7 +106,7 @@ class CropPredictor:
                     confidence = raw_confidence
 
                     # Filter out very low confidence predictions
-                    if confidence > 0.01: 
+                    if confidence > 0.001: 
                         local_name = translate_text(crop_name, lang)
                         reasoning = self._generate_reasoning(crop_name, features, lang)
                         results.append({

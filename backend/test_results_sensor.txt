@@ -1,0 +1,16 @@
+Checking Sensor Data Endpoints...
+
+[GET] /sensor/latest: 200
+{
+  "device_id": "TS_STATION_01",
+  "humidity": 48.8,
+  "id": "db7ea07e-2353-4349-88a7-a1391a2cc54d",
+  "moisture": 73,
+  "nitrogen": 41,
+  "ph": 7.94,
+  "phosphorus": 142,
+  "potassium": 135,
+  "rainfall": 0.0,
+  "temperature": 26.8,
+  "timestamp": "2026-02-12T17:04:49+00:00"
+}

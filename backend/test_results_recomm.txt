@@ -1,0 +1,141 @@
+Testing Recommendation Count (Expect 5)...
+Status: 200
+Recommendation Count: 5
+[
+  {
+    "crop": {
+      "confidence": 0.03,
+      "crop": "mothbeans",
+      "reasoning": [
+        "Soil pH is optimal."
+      ],
+      "translated_crop": "mothbeans"
+    },
+    "fertilizer": {
+      "application_tips": [
+        "NPK fertilizers work best when applied in the root zone.",
+        "Standard application: half during sowing, remaining after 30-40 days."
+      ],
+      "confidence": 0.75,
+      "name": "Balanced NPK",
+      "reasoning": [
+        "Fertilizer optimized for mothbeans nutrient requirements"
+      ],
+      "translated_name": "Balanced NPK"
+    },
+    "yield": {
+      "predicted_yield": 3.3,
+      "season": "Kharif",
+      "unit": "tons/ha"
+    }
+  },
+  {
+    "crop": {
+      "confidence": 0.02,
+      "crop": "pigeonpeas",
+      "reasoning": [
+        "Soil pH is optimal."
+      ],
+      "translated_crop": "pigeonpeas"
+    },
+    "fertilizer": {
+      "application_tips": [
+        "NPK fertilizers work best when applied in the root zone.",
+        "Standard application: half during sowing, remaining after 30-40 days."
+      ],
+      "confidence": 0.75,
+      "name": "Balanced NPK",
+      "reasoning": [
+        "Fertilizer optimized for pigeonpeas nutrient requirements"
+      ],
+      "translated_name": "Balanced NPK"
+    },
+    "yield": {
+      "predicted_yield": 3.3,
+      "season": "Kharif",
+      "unit": "tons/ha"
+    }
+  },
+  {
+    "crop": {
+      "confidence": 0.01,
+      "crop": "blackgram",
+      "reasoning": [
+        "Soil pH is optimal."
+      ],
+      "translated_crop": "blackgram"
+    },
+    "fertilizer": {
+      "application_tips": [
+        "NPK fertilizers work best when applied in the root zone.",
+        "Standard application: half during sowing, remaining after 30-40 days."
+      ],
+      "confidence": 0.75,
+      "name": "Balanced NPK",
+      "reasoning": [
+        "Fertilizer optimized for blackgram nutrient requirements"
+      ],
+      "translated_name": "Balanced NPK"
+    },
+    "yield": {
+      "predicted_yield": 3.3,
+      "season": "Kharif",
+      "unit": "tons/ha"
+    }
+  },
+  {
+    "crop": {
+      "confidence": 0.01,
+      "crop": "lentil",
+      "reasoning": [
+        "Soil pH is optimal."
+      ],
+      "translated_crop": "lentil"
+    },
+    "fertilizer": {
+      "application_tips": [
+        "NPK fertilizers work best when applied in the root zone.",
+        "Standard application: half during sowing, remaining after 30-40 days."
+      ],
+      "confidence": 0.75,
+      "name": "Balanced NPK",
+      "reasoning": [
+        "Fertilizer optimized for lentil nutrient requirements"
+      ],
+      "translated_name": "Balanced NPK"
+    },
+    "yield": {
+      "predicted_yield": 3.3,
+      "season": "Kharif",
+      "unit": "tons/ha"
+    }
+  },
+  {
+    "crop": {
+      "confidence": 0.0,
+      "crop": "jute",
+      "reasoning": [
+        "Soil pH is optimal."
+      ],
+      "translated_crop": "jute"
+    },
+    "fertilizer": {
+      "application_tips": [
+        "NPK fertilizers work best when applied in the root zone.",
+        "Standard application: half during sowing, remaining after 30-40 days."
+      ],
+      "confidence": 0.75,
+      "name": "Balanced NPK",
+      "reasoning": [
+        "Fertilizer optimized for jute nutrient requirements"
+      ],
+      "translated_name": "Balanced NPK"
+    },
+    "yield": {
+      "predicted_yield": 3.3,
+      "season": "Kharif",
+      "unit": "tons/ha"
+    }
+  }
+]
+PASS: Received at least 3 recommendations.

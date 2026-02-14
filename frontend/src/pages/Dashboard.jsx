@@ -93,15 +93,15 @@ const Dashboard = ({ lang = 'en', t }) => {
             </header>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-                <SensorCard title={t('temp')} value={data?.temperature} unit="°C" colorClass="border-red-500" />
-                <SensorCard title={t('humidity')} value={data?.humidity} unit="%" colorClass="border-blue-400" />
-                <SensorCard title={t('ph')} value={data?.ph} unit="pH" colorClass="border-purple-400" />
-                <SensorCard title={t('moisture')} value={data?.moisture} unit="%" colorClass="border-cyan-400" />
+                <SensorCard title={`${t('average')} ${t('temp')}`} value={data?.temperature} unit="°C" colorClass="border-red-500" />
+                <SensorCard title={`${t('average')} ${t('humidity')}`} value={data?.humidity} unit="%" colorClass="border-blue-400" />
+                <SensorCard title={`${t('average')} ${t('ph')}`} value={data?.ph} unit="pH" colorClass="border-purple-400" />
+                <SensorCard title={`${t('average')} ${t('moisture')}`} value={data?.moisture} unit="%" colorClass="border-cyan-400" />
 
-                <SensorCard title={t('nitrogen')} value={data?.N} unit="mg/kg" colorClass="border-green-500" />
-                <SensorCard title={t('phosphorus')} value={data?.P} unit="mg/kg" colorClass="border-orange-400" />
-                <SensorCard title={t('potassium')} value={data?.K} unit="mg/kg" colorClass="border-yellow-400" />
-                <SensorCard title={t('rainfall')} value={data?.rainfall} unit="mm" colorClass="border-indigo-400" />
+                <SensorCard title={`${t('average')} ${t('nitrogen')}`} value={data?.N} unit="mg/kg" colorClass="border-green-500" />
+                <SensorCard title={`${t('average')} ${t('phosphorus')}`} value={data?.P} unit="mg/kg" colorClass="border-orange-400" />
+                <SensorCard title={`${t('average')} ${t('potassium')}`} value={data?.K} unit="mg/kg" colorClass="border-yellow-400" />
+                <SensorCard title={`${t('average')} ${t('rainfall')}`} value={data?.rainfall} unit="mm" colorClass="border-indigo-400" />
             </div>
 
             <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm transition-all hover:shadow-md">

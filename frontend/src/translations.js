@@ -2,6 +2,7 @@ export const translations = {
     en: {
         title: "Mitti Mitra",
         dashboard: "Dashboard",
+        average: "Average",
         predictor: "AI Predictor",
         manual_input: "Manual Entry",
         disease_check: "Disease Check",
@@ -52,6 +53,7 @@ export const translations = {
     hi: {
         title: "मिट्टी मित्र",
         dashboard: "डैशबोर्ड",
+        average: "औसत",
         predictor: "एआई भविष्यवक्ता",
         manual_input: "मैन्युअल प्रविष्टि",
         disease_check: "रोग जांच",
@@ -102,6 +104,7 @@ export const translations = {
     te: {
         title: "మిట్టి మిత్ర",
         dashboard: "డాష్‌బోర్డ్",
+        average: "సగటు",
         predictor: "AI ప్రిడిక్టర్",
         manual_input: "మాన్యువల్ ఎంట్రీ",
         disease_check: "వ్యాధి తనిఖీ",
@@ -144,6 +147,7 @@ export const translations = {
     ta: {
         title: "மிட்டி மித்ரா",
         dashboard: "டாஷ்போர்டு",
+        average: "சராசரி",
         predictor: "AI கணிப்பாளர்",
         manual_input: "கைமுறை உள்ளீடு",
         disease_check: "நோய் பரிசோதனை",
@@ -186,6 +190,7 @@ export const translations = {
     kn: {
         title: "ಮಿಟ್ಟಿ ಮಿತ್ರ",
         dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+        average: "ಸರಾಸರಿ",
         predictor: "AI ಮುನ್ಸೂಚಕ",
         manual_input: "ಹಸ್ತಚಾಲಿತ ನಮೂದು",
         disease_check: "ರೋಗ ತಪಾಸಣೆ",
@@ -228,6 +233,7 @@ export const translations = {
     ml: {
         title: "മിട്ടി മിത്ര",
         dashboard: "ഡാഷ്ബോർഡ്",
+        average: "ശരാശരി",
         predictor: "AI പ്രെഡിക്ടർ",
         manual_input: "മാനുവൽ എൻട്രി",
         disease_check: "രോഗ പരിശോധന",
