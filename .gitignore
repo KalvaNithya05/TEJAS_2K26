@@ -1,25 +1,120 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Node
-node_modules/
+# Flask
+instance/
+.webassets-cache
 
-# Environment files
-.env
-.env.*
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
 
-# IDE files
+# Translations
+*.mo
+*.pot
+
+# Django (if any)
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask instance
+instance/
+
+# Scikit-learn / ML
+*.pkl
+*.h5
+*.joblib
+*.npy
+*.npz
+*.model
+
+# Allow tracking of specific model files via LFS or force add if small, 
+# but generally ignore large model artifacts unless specified in .gitattributes
+# However, user wants SPECIFIC models tracked. 
+# We will use .gitattributes for LFS, but allow them in gitignore?
+# No, LFS tracked files should NOT be ignored. 
+# So we must NOT ignore the specific paths.
+!backend/models/crop_recommendation_model.pkl
+!backend/models/scaler.pkl
+!backend/models/label_encoder.pkl
+!backend/services/disease/models/plant_disease_model.h5
+
+# IoT / Hardware
 .vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
 
-# Generated files
-*.pdf
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Generated Reports
+backend/services/report-*.pdf
+results/
+outputs/
+backend/services/disease/research/
+backend/services/disease/research/samples/
+backend/services/disease/research/results/
+
+# Data
+data/
+
+# Temporary
+test_results_*.txt
+*.tmp
+*.bak
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+dist/
+build/
 
 # Data and models
 backend/training/
 backend/dl/
 test_images/
-data/
-
 # Logs
 *.log
