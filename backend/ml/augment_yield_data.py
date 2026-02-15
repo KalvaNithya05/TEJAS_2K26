@@ -3,7 +3,7 @@ import os
 import random
 
 # Configuration
-DATA_DIR = r"d:\Projects\mitti mitra\data"
+DATA_DIR = r"d:\Projects\TEJAS_2K26\backend\ml\data"
 INPUT_FILE = "crop_yield.csv"
 OUTPUT_FILE = "crop_yield_updated.csv"
 

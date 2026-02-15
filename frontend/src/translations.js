@@ -6,6 +6,7 @@ export const translations = {
         predictor: "AI Predictor",
         manual_input: "Manual Entry",
         disease_check: "Disease Check",
+        recovery_hub: "Recovery Hub",
         language: "Language",
         get_started: "Get Started",
         sensor_status: "Live Soil Monitor",
@@ -48,7 +49,18 @@ export const translations = {
         recent_logs: "Recent Readings Log",
         time: "Time",
         npk: "N-P-K (mg/kg)",
-        temp_hum: "Temp/Hum"
+        temp_hum: "Temp/Hum",
+        recovery_subtitle: "Crop Failure Recovery System",
+        damage_type: "Damage Type",
+        damage_percentage: "Damage %",
+        growth_stage: "Growth Stage (Days)",
+        get_recovery_plan: "Generate Recovery Plan",
+        situation_analysis: "Situation Analysis",
+        action_plan: "Action Plan",
+        eco_tip: "Eco-Friendly Tip",
+        govt_support: "Government Support",
+        crop_name: "Crop Name",
+        season_started: "Season Started"
     },
     hi: {
         title: "मिट्टी मित्र",
@@ -57,6 +69,7 @@ export const translations = {
         predictor: "एआई भविष्यवक्ता",
         manual_input: "मैन्युअल प्रविष्टि",
         disease_check: "रोग जांच",
+        recovery_hub: "रिकवरी हब",
         language: "भाषा",
         get_started: "शुरू करें",
         sensor_status: "लाइव मृदा मॉनिटर",
@@ -99,7 +112,14 @@ export const translations = {
         recent_logs: "हालिया लॉग",
         time: "समय",
         npk: "एन-पी-के",
-        temp_hum: "तापमान/नमी"
+        temp_hum: "तापमान/नमी",
+        recovery_subtitle: "फसल विफलता रिकवरी सिस्टम",
+        damage_type: "क्षति का प्रकार",
+        damage_percentage: "क्षति %",
+        growth_stage: "वृद्धि चरण (दिन)",
+        get_recovery_plan: "रिकवरी योजना तैयार करें",
+        crop_name: "फसल का नाम",
+        season_started: "सीजन शुरू हुआ"
     },
     te: {
         title: "మిట్టి మిత్ర",
@@ -108,6 +128,7 @@ export const translations = {
         predictor: "AI ప్రిడిక్టర్",
         manual_input: "మాన్యువల్ ఎంట్రీ",
         disease_check: "వ్యాధి తనిఖీ",
+        recovery_hub: "రికవరీ హబ్",
         language: "భాష",
         get_started: "ప్రారంభించండి",
         sensor_status: "నిజ-సమయ నేల డేటా",
@@ -142,7 +163,14 @@ export const translations = {
         realtime_telemetry: "నిజ-సమయ టెలిమెట్రీ",
         live_sync: "లైవ్ సమకాలీకరణ",
         predictor_subtitle: "AI-ఆధారిత వ్యవసాయ అంతर्दृष्टि",
-        download_pdf: "PDF నివేదిక ↓"
+        download_pdf: "PDF నివేదిక ↓",
+        recovery_subtitle: "పంట వైఫల్యం రికవరీ సిస్టమ్",
+        damage_type: "నష్టం రకం",
+        damage_percentage: "నష్టం %",
+        growth_stage: "ఎదుగుదల దశ (రోజులు)",
+        get_recovery_plan: "రికవరీ ప్లాన్ రూపొందించండి",
+        crop_name: "పంట పేరు",
+        season_started: "సీజన్ ప్రారంభం"
     },
     ta: {
         title: "மிட்டி மித்ரா",
@@ -151,6 +179,7 @@ export const translations = {
         predictor: "AI கணிப்பாளர்",
         manual_input: "கைமுறை உள்ளீடு",
         disease_check: "நோய் பரிசோதனை",
+        recovery_hub: "மீட்பு மையம்",
         language: "மொழி",
         get_started: "தொடங்குங்கள்",
         sensor_status: "மண் தரவு",
@@ -185,7 +214,14 @@ export const translations = {
         realtime_telemetry: "நேரடி தரவு",
         live_sync: "நேரடி ஒத்திசைவு",
         predictor_subtitle: "AI விவசாய நுண்ணறிவு",
-        download_pdf: "PDF அறிக்கை ↓"
+        download_pdf: "PDF அறிக்கை ↓",
+        recovery_subtitle: "பயிர் தோல்வி மீட்பு அமைப்பு",
+        damage_type: "சேத வகை",
+        damage_percentage: "சேதம் %",
+        growth_stage: "வளர்ச்சி நிலை (நாட்கள்)",
+        get_recovery_plan: "மீட்பு திட்டத்தை உருவாக்கு",
+        crop_name: "பயிர் பெயர்",
+        season_started: "பருவம் தொடங்கியது"
     },
     kn: {
         title: "ಮಿಟ್ಟಿ ಮಿತ್ರ",
@@ -194,6 +230,7 @@ export const translations = {
         predictor: "AI ಮುನ್ಸೂಚಕ",
         manual_input: "ಹಸ್ತಚಾಲಿತ ನಮೂದು",
         disease_check: "ರೋಗ ತಪಾಸಣೆ",
+        recovery_hub: "ರಿಕವರಿ ಹಬ್",
         language: "ಭಾಷೆ",
         get_started: "ಪ್ರಾರಂಭಿಸಿ",
         sensor_status: "ಮಣ್ಣಿನ ಮಾಹಿತಿ",
@@ -228,7 +265,14 @@ export const translations = {
         realtime_telemetry: "ನೈಜ-ಸಮಯದ ಅಂಕಿಅಂಶ",
         live_sync: "ಲೈವ್ ಸಿಂಕ್",
         predictor_subtitle: "AI ಆಧರಿತ ಕೃಷಿ ಮಾಹಿತಿ",
-        download_pdf: "PDF ವರದಿ ↓"
+        download_pdf: "PDF ವರದಿ ↓",
+        recovery_subtitle: "ಬೆಳೆ ವೈಫಲ್ಯ ಮರುಪಡೆಯುವಿಕೆ ವ್ಯವಸ್ಥೆ",
+        damage_type: "ಹಾನಿಯ ವಿಧ",
+        damage_percentage: "ಹಾನಿ %",
+        growth_stage: "ಬೆಳವಣಿಗೆಯ ಹಂತ (ದಿನಗಳು)",
+        get_recovery_plan: "ರಿಕವರಿ ಯೋಜನೆಯನ್ನು ತಯಾರಿಸಿ",
+        crop_name: "ಬೆಳೆಯ ಹೆಸರು",
+        season_started: "ಋತು ಪ್ರಾರಂಭ ಸಂಕ್ಷಿಪ್ತ"
     },
     ml: {
         title: "മിട്ടി മിത്ര",
@@ -237,6 +281,7 @@ export const translations = {
         predictor: "AI പ്രെഡിക്ടർ",
         manual_input: "മാനുവൽ എൻട്രി",
         disease_check: "രോഗ പരിശോധന",
+        recovery_hub: "റിക്കവറി ഹബ്",
         language: "ഭാഷ",
         get_started: "ആരംഭിക്കുക",
         sensor_status: "തത്സമയ മണ്ണ് ഡാറ്റ",
@@ -271,6 +316,13 @@ export const translations = {
         realtime_telemetry: "തത്സമയ ടെലിമെട്രി",
         live_sync: "തത്സമയ സമന്വയം",
         predictor_subtitle: "AI അധിഷ്ഠിത കാർഷിക വിവരങ്ങൾ",
-        download_pdf: "PDF റിപ്പോർട്ട് ↓"
+        download_pdf: "PDF റിപ്പോർട്ട് ↓",
+        recovery_subtitle: "വിള പരാജയ വീണ്ടെടുക്കൽ സംവിധానం",
+        damage_type: "നാശനഷ്ട തരം",
+        damage_percentage: "നാശനഷ്ടം %",
+        growth_stage: "വളർച്ചാ ഘട്ടം (ദിവസങ്ങൾ)",
+        get_recovery_plan: "റിക്കവറി പ്ലാൻ തയ്യാറാക്കുക",
+        crop_name: "വിളയുടെ പേര്",
+        season_started: "സീസൺ ആരംഭിച്ചു"
     }
 };
