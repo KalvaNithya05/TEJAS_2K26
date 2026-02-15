@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Predict from './pages/Predict';
 import ManualInput from './pages/ManualInput';
 import Disease from './pages/Disease';
+import Recovery from './pages/Recovery';
 import { translations } from './translations';
 
 function App() {
@@ -74,6 +75,12 @@ function App() {
             >
               <span className="mr-3">🦠</span> {t('disease_check')}
             </NavLink>
+            <NavLink
+              to="/recovery"
+              className={({ isActive }) => `flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${isActive ? 'bg-green-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100 hover:text-green-700'}`}
+            >
+              <span className="mr-3">🆘</span> {t('recovery_hub')}
+            </NavLink>
           </nav>
 
           <div className="p-4 border-t border-gray-100">
@@ -104,6 +111,7 @@ function App() {
             <Route path="/predict" element={<Predict lang={lang} t={t} />} />
             <Route path="/manual" element={<ManualInput lang={lang} t={t} />} />
             <Route path="/disease" element={<Disease lang={lang} t={t} />} />
+            <Route path="/recovery" element={<Recovery lang={lang} t={t} />} />
           </Routes>
         </main>
       </div>

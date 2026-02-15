@@ -75,3 +75,19 @@ export const getSensorHistory = async () => {
         return [];
     }
 };
+
+export const getRecoveryPrediction = async (data) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/recovery/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        const result = await response.json();
+        if (!response.ok) return { error: result.error || 'Server error' };
+        return result;
+    } catch (error) {
+        console.error("Error getting recovery prediction:", error);
+        return { error: "Network error. Please check if backend is running." };
+    }
+};

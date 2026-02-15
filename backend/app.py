@@ -10,7 +10,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 sys.path.append(os.path.dirname(current_dir))
 
-load_dotenv()
+load_dotenv(os.path.join(current_dir, '.env'))
 
 def create_app():
     app = Flask(__name__)
@@ -24,12 +24,14 @@ def create_app():
         from api.report import report_bp
         from services.disease.api import disease_bp
         from api.sms import sms_api
+        from api.recovery import recovery_bp
 
         app.register_blueprint(predict_bp, url_prefix='/api/predict')
         app.register_blueprint(sensor_bp, url_prefix='/api/sensor') # '/api/sensor' matches pi config
         app.register_blueprint(report_bp, url_prefix='/api/report')
         app.register_blueprint(disease_bp, url_prefix='/api/disease')
         app.register_blueprint(sms_api, url_prefix='/api/sms')
+        app.register_blueprint(recovery_bp, url_prefix='/api/recovery')
     except ImportError as e:
         print(f"Warning: Could not import some API blueprints: {e}")
         print("Note: This is expected during initial generation phase.")

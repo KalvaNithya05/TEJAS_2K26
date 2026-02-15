@@ -13,3 +13,4 @@ Pillow
 # Adafruit_DHT
 # RPi.GPIO
 # spidev
+google-generativeai

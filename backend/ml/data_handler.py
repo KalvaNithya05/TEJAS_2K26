@@ -10,7 +10,7 @@ class DataHandler:
         
         # Prioritize restored high-quality dataset
         restored_path = os.path.join(data_dir, 'Crop_recommendation_restored.csv')
-        master_path = os.path.join(data_dir, 'mitti_mitra_master_dataset_all_india.csv')
+        master_path = os.path.join(data_dir, 'mitti_mitra_all_india_dataset.csv')
         
         if os.path.exists(restored_path):
             self.data_path = restored_path

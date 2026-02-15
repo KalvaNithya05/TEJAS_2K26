@@ -99,16 +99,16 @@ def get_latest():
             
     return jsonify({'error': 'no_data', 'message': 'No sensor readings found.'}), 404
 
-from services.aggregation_service import AggregationService
-agg_service = AggregationService()
+from services.aggregator import get_aggregated_data
 
 @sensor_bp.route('/aggregate', methods=['GET'])
 def get_aggregate():
     """
-    Get aggregated values (average of last 30 readings).
+    Get aggregated values (average of last 30 readings from ThingSpeak).
     """
-    device_id = request.args.get('device_id', 'MM-POLE-001')
-    stats = agg_service.get_last_n_average(device_id, n=30)
+    stats = get_aggregated_data(results=30)
+    if not stats:
+        return jsonify({'error': 'failed_to_fetch', 'message': 'Could not fetch data from ThingSpeak'}), 500
     return jsonify(stats)
 
 @sensor_bp.route('/history', methods=['GET'])
